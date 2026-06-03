@@ -27,6 +27,32 @@ Core entry columns:
 - `correlation_id`: optional workflow/request correlation id
 - `created_at`: UTC timestamp
 
+## Example entry
+
+```json
+{
+  "id": "01JNV8EJFKJVEWRS2R1W4GD5E6",
+  "actor_type": "App\\Models\\User",
+  "actor_id": "42",
+  "action": "invoice.sent",
+  "subject_type": "App\\Models\\Invoice",
+  "subject_id": "91",
+  "payload": {
+    "email": "client@example.com"
+  },
+  "payload_hash": "d5d8...",
+  "chain_hash": "6ac4...",
+  "checkpoint_id": null,
+  "metadata": {
+    "email": "client@example.com"
+  },
+  "diff": null,
+  "tags": ["billing", "email"],
+  "correlation_id": null,
+  "created_at": "2026-03-06T12:34:56.000000Z"
+}
+```
+
 ## Entry characteristics
 
 Chronicle entries are intentionally immutable.
