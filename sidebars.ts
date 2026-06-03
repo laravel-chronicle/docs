@@ -43,6 +43,20 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'How-To Guides',
+      items: [
+        'guide-audit-eloquent-models',
+        'guide-audit-api-request',
+        'guide-dedicated-audit-database',
+        'guide-queue-driver',
+        'guide-schedule-checkpoints-exports',
+        'guide-rotate-signing-keys',
+        'guide-testing',
+        'guide-compliance-report',
+      ],
+    },
+    {
+      type: 'category',
       label: 'Reference',
       items: [
         'artisan-commands',
