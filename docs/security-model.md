@@ -75,6 +75,18 @@ Export manifests include:
 
 These protect against partial or reordered exports.
 
+## Tampering detection summary
+
+| Attack | How it is detected |
+|---|---|
+| Entry modification | `payload_hash` mismatch |
+| Entry deletion | chain hash break at gap |
+| Entry insertion | chain hash break from that point |
+| Entry reordering | chain hash break from that point |
+| Dataset modification | `dataset_hash` mismatch |
+| Dataset truncation | `entry_count` / boundary mismatch |
+| Dataset forgery | signature verification failure |
+
 ## What Chronicle does not guarantee
 
 Chronicle does not protect against:
@@ -93,6 +105,10 @@ If your application records false events, Chronicle can preserve them faithfully
 - export and verify datasets regularly
 - store exports outside the primary application database
 - restrict database access with normal operational controls
+
+## Signing provider key resolution
+
+Checkpoint and export artifacts persist `algorithm` and `key_id` metadata alongside their signatures. Current verification uses the **active** configured `SigningProvider` instance — it does not dynamically resolve historical providers by `key_id`. If you rotate signing keys, re-verify or re-sign any artifacts that were created under the previous key before decommissioning it.
 
 ## Security philosophy
 
