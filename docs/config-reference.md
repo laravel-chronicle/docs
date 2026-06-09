@@ -253,8 +253,10 @@ return [
     'driver'     => env('CHRONICLE_DRIVER', 'eloquent'),
     'connection' => env('CHRONICLE_DB_CONNECTION', 'audit'),
     'tables' => [
-        'entries'     => 'chronicle_entries',
-        'checkpoints' => 'chronicle_checkpoints',
+        'entries'            => 'chronicle_entries',
+        'checkpoints'        => 'chronicle_checkpoints',
+        'checkpoint_anchors' => 'chronicle_checkpoint_anchors',
+        'verification_runs'  => 'chronicle_verification_runs',
     ],
     'signing' => [
         'enforce_on_boot' => env('CHRONICLE_SIGNING_ENFORCE_ON_BOOT', true),
@@ -266,6 +268,17 @@ return [
                 'private_key' => env('CHRONICLE_PRIVATE_KEY'),
                 'public_key'  => env('CHRONICLE_PUBLIC_KEY'),
             ],
+        ],
+    ],
+    'anchoring' => [
+        'enabled'   => env('CHRONICLE_ANCHORING_ENABLED', false),
+        'queue'     => env('CHRONICLE_ANCHORING_QUEUE'),
+        'providers' => [
+            // 'rfc3161' => [
+            //     'provider'        => \Chronicle\Anchoring\Rfc3161TimestampAnchor::class,
+            //     'tsa_url'         => env('CHRONICLE_TSA_URL'),
+            //     'tsa_certificate' => env('CHRONICLE_TSA_CERTIFICATE'),
+            // ],
         ],
     ],
     'validation' => [
