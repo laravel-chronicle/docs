@@ -53,6 +53,13 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Encryption & Erasure',
+      items: [
+        'crypto-shredding',
+      ],
+    },
+    {
+      type: 'category',
       label: 'Verification & Integrity',
       items: [
         'integrity-verification',
