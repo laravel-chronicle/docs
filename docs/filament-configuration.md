@@ -8,15 +8,17 @@ The plugin reads `config/chronicle-filament.php`; every value can be overridden 
 
 ## Config reference
 
-| Key                             | Default                  | Purpose                                                                                                                                                       |
-|---------------------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `entry_model`                   | `\Chronicle\Entry\Entry` | The Eloquent model the resource reads. Point at a subclass to add accessors/relations; honored end-to-end when `chronicle.models.entry` matches (core 1.13+). |
-| `navigation.group`              | `'Chronicle'`            | Navigation group label                                                                                                                                        |
-| `navigation.sort`               | `null`                   | Navigation sort order                                                                                                                                         |
-| `slug`                          | `'chronicle-entries'`    | Resource route slug                                                                                                                                           |
-| `verification.enabled`          | `true`                   | Master toggle for badges, verify actions, and the health widget                                                                                               |
-| `verification.queue_threshold`  | `1000`                   | Chain/segment verifies covering more than this many entries are queued instead of run synchronously                                                           |
-| `verification.store.connection` | `null`                   | Database connection for the verification result store (`null` = the app default)                                                                              |
+| Key                                    | Default                  | Purpose                                                                                                                                                                |
+|----------------------------------------|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `entry_model`                          | `\Chronicle\Entry\Entry` | The Eloquent model the resource reads. Point at a subclass to add accessors/relations; honored end-to-end when `chronicle.models.entry` matches (core 1.13+).          |
+| `navigation.group`                     | `'Chronicle'`            | Navigation group label                                                                                                                                                 |
+| `navigation.sort`                      | `null`                   | Navigation sort order                                                                                                                                                  |
+| `slug`                                 | `'chronicle-entries'`    | Resource route slug                                                                                                                                                    |
+| `verification.enabled`                 | `true`                   | Master toggle for badges, verify actions, and the health widget                                                                                                        |
+| `verification.queue_threshold`         | `1000`                   | Chain/segment verifies covering more than this many entries are queued instead of run synchronously                                                                    |
+| `verification.store.connection`        | `null`                   | Database connection for the verification result store (`null` = the app default)                                                                                       |
+| `anchoring.enabled`                    | `null`                   | Master toggle for the anchor surfaces. `null` follows core's `chronicle.anchoring.enabled`; set `true`/`false` to force. Hidden everywhere when core anchoring is off. |
+| `anchoring.verify_all_queue_threshold` | `1000`                   | "Verify all anchors" runs synchronously at or below this many in-scope checkpoints, and is queued above it.                                                            |
 
 ## Fluent plugin methods
 
@@ -29,6 +31,7 @@ ChronicleFilamentPlugin::make()
     ->slug('chronicle')
     ->cluster(AuditCluster::class)
     ->verification(true)
+    ->anchoring(true)
     ->authorize(fn (): bool => auth()->user()?->can('verify-chronicle') ?? false)
     ->labelResolver(fn (string $type, string $id): ?string => null);
 ```
@@ -37,6 +40,7 @@ ChronicleFilamentPlugin::make()
 |----------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | `navigationGroup()`, `navigationSort()`, `slug()`, `cluster()` | Resource placement in the panel                                                                |
 | `verification(bool)`                                           | Enable/disable verification UI                                                                 |
+| `anchoring(bool)`                                              | Show/hide the anchor surfaces (defaults to following core)                                     |
 | `authorize(Closure)`                                           | Gate the verify actions independently of read access                                           |
 | `labelResolver(Closure)`                                       | Override actor/subject display labels; return `null` to fall back to core's `resolveReference` |
 

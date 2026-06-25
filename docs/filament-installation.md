@@ -49,6 +49,8 @@ $panel->plugin(
 
 Read (view) access is governed by your panel's normal authorization. The `->authorize()` closure gates only the chain/entry/segment **verify** actions, not browsing.
 
+The v1.1 external-anchoring surfaces follow core anchoring - they stay hidden unless `chronicle.anchoring.enabled` is on (override with `->anchoring(true|false)`), and need core anchoring configured (RFC 3161 TSA or the [S3 Object Lock adapter](./anchor-s3.md)) to show anything.
+
 ## See also
 
 - [Browsing & Verification](./filament-verification.md) - what the panel does
