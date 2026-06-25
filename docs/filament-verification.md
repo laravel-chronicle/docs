@@ -38,6 +38,25 @@ Results are written to a plugin-owned, DB-backed store and surfaced as badges - 
 
 The `VerificationHealthWidget` summarises the last-verified time, pass/fail, and a cheap checkpoint spine check (`O(checkpoints)`).
 
+## External anchoring
+
+Since the plugin's v1.1, the panel surfaces core's [external checkpoint anchoring](./anchoring.md). Like verification, anchor checks are **deliberate and read-only** - nothing contacts an anchor provider on a render path. All anchor surfaces are hidden unless core anchoring is enabled (they follow `chronicle.anchoring.enabled`; override with `->anchoring(true|false)`).
+
+The entry detail view gains a read-only **External anchoring** section listing the entry's checkpoint's anchors - per anchor the provider, a status badge, `anchored_at`, `reference`, and a copyable `proof`. It reads stored anchor status only, and degrades to *Unanchored*, *No anchors*, or *Anchoring not configured*.
+
+Verification is exposed two ways, both gated by the same `->authorize()` closure as the chain/entry/segment actions:
+
+| Action             | Where               | Scope                                                                           |
+|--------------------|---------------------|---------------------------------------------------------------------------------|
+| Verify anchor      | Row + detail header | One entry's checkpoint, via core's `AnchorVerifier::checkpointHasValidAnchor()` |
+| Verify all anchors | List-page header    | Every in-scope checkpoint, via `AnchorVerifier::verify()`                       |
+
+"Verify all anchors" runs synchronously at or below `anchoring.verify_all_queue_threshold` (default 1000 checkpoints) and on the queue above it, notifying you on completion.
+
+An **Anchor** badge column and matching filter read the checkpoint's stored anchor status (no provider call, no per-row query), and an `AnchorCoverageWidget` summarises coverage from cheap aggregates - checkpoints anchored vs total, plus pending/failed counts and the latest `anchored_at`.
+
+To populate any of this, core anchoring must be configured - RFC 3161 TSA or the [S3 Object Lock adapter](./anchor-s3.md). With none configured, every entry shows as *Unanchored* and the surfaces stay hidden.
+
 ## Theming
 
 The panel uses Filament's native CSS variables and utility classes only - no npm, no asset compilation, no required custom theme. It adopts your panel's primary color and dark mode automatically.
@@ -47,3 +66,5 @@ The panel uses Filament's native CSS variables and utility classes only - no npm
 - [Installation](./filament-installation.md)
 - [Configuration](./filament-configuration.md)
 - [Scalable Verification](./scalable-verification.md) - the verification modes the actions map to
+- [External Anchoring](./anchoring.md) - the anchors the panel surfaces
+- [S3 Object Lock Adapter](./anchor-s3.md) - one way to produce anchors
