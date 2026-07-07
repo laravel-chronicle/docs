@@ -32,13 +32,19 @@ const config: Config = {
         theme: {
           customCss: './src/css/custom.css',
         },
-        gtag: {
-            trackingID: 'G-H96MWYYX92',
-        },
       } satisfies Preset.Options,
     ],
   ],
+  plugins: [
+    'docusaurus-plugin-matomo',
+  ],
   themeConfig: {
+    matomo: {
+      matomoUrl: 'https://analytics.laravel-chronicle.dev',
+      siteId: '1',
+      phpLoader: 'matomo.php',
+      jsLoader: 'matomo.js',
+    },
     image: 'img/docusaurus-social-card.jpg',
     colorMode: {
       respectPrefersColorScheme: true,
