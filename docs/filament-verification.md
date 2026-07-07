@@ -100,6 +100,19 @@ It is fenced deliberately, and each guard is enforced in the action's visibility
 
 Enabling requires **both** `->erasure(true)` and an `->eraseAuthorize()` closure that grants - the config flag alone never makes it reachable. See core's [GDPR erasure](./gdpr-erasure.md) and [crypto-shredding](./crypto-shredding.md) for what erasure does to the key store and the audit trail.
 
+## Export & reporting
+
+Since the plugin's v1.4, the panel can produce core's [verifiable exports](./exports.md) and [signed compliance reports](./compliance-reports.md). These are **read-only**: export, report, and verify are reads that write only artifact files to a storage disk - never the ledger. Core signs the artifacts and they re-verify.
+
+- **Verifiable export** - a queued action runs core's export and packages the signed `entries.ndjson` + `manifest.json` + `signature.json` bundle into one downloadable zip, reporting the entry count, dataset hash, and chain head. The export is the **full dataset** and re-verifies clean under core's [export verifier](./export-verification.md).
+- **Verify export** - upload a bundle (or pick a previously generated one) and the panel runs the export verifier, reporting valid/invalid with the reason. A tampered dataset or altered signature reports invalid.
+- **Signed compliance report** - a `from`/`to` period action generates core's [compliance report](./compliance-reports.md), renders the HTML, and offers a download with its signature (`reportHash`, `algorithm`, `keyId`). Reports are period-filtered and queued above `exports.queue_threshold`.
+- **Artifacts widget** - lists previously generated bundles on the exports disk with download and verify shortcuts.
+
+:::warning Data egress
+An export contains the whole dataset (plaintext for unencrypted columns, ciphertext for encrypted fields; erased subjects stay unreadable). Because of that, `canExport()` **defaults to the verify gate** - never wider - and `->exportAuthorize()` can tighten it to the least privilege.
+:::
+
 ## Theming
 
 The panel uses Filament's native CSS variables and utility classes only - no npm, no asset compilation, no required custom theme. It adopts your panel's primary color and dark mode automatically.
@@ -114,3 +127,6 @@ The panel uses Filament's native CSS variables and utility classes only - no npm
 - [Signing & Keys](./signing-and-keys.md) - the key ring the panel surfaces, and key rotation
 - [Crypto-Shredding](./crypto-shredding.md) - the erasure state the panel surfaces
 - [GDPR Erasure](./gdpr-erasure.md) - what the Erase-subject action performs
+- [Exports](./exports.md) - the verifiable export the panel generates
+- [Export Verification](./export-verification.md) - how an export bundle is re-verified
+- [Compliance Reports](./compliance-reports.md) - the signed reports the panel generates

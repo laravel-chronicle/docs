@@ -23,6 +23,11 @@ The plugin reads `config/chronicle-filament.php`; every value can be overridden 
 | `crypto_shredding.enabled`             | `null`                   | Toggle for the read-only erasure surfaces (column, filter, detail, proof preset, widget). `null` follows core's `chronicle.encryption.enabled`.                        |
 | `erasure.enabled`                      | `false`                  | Master toggle for the irreversible Erase-subject action. Off by default.                                                                                               |
 | `erasure.allow_hold_override`          | `false`                  | Whether a legal hold may be overridden during erasure (still gated per action).                                                                                        |
+| `exports.enabled`                      | `true`                   | Toggle for the verifiable-export and verify-export surfaces.                                                                                                           |
+| `exports.disk`                         | `null`                   | Storage disk for generated artifacts (`null` = the app default).                                                                                                       |
+| `exports.path`                         | `chronicle-exports`      | Directory on the disk for generated bundles.                                                                                                                           |
+| `exports.queue_threshold`              | `1000`                   | Compliance reports covering more than this many entries are queued.                                                                                                    |
+| `reporting.enabled`                    | `true`                   | Toggle for the signed compliance-report surface.                                                                                                                       |
 
 ## Fluent plugin methods
 
@@ -40,6 +45,9 @@ ChronicleFilamentPlugin::make()
     ->cryptoShredding(true)
     ->erasure(false) // the erase action is off by default
     ->eraseAuthorize(fn ($record): bool => auth()->user()?->can('erase-subject') ?? false)
+    ->exports(true)
+    ->reporting(true)
+    ->exportAuthorize(fn ($record): bool => auth()->user()?->can('export-chronicle') ?? false)
     ->authorize(fn (): bool => auth()->user()?->can('verify-chronicle') ?? false)
     ->labelResolver(fn (string $type, string $id): ?string => null);
 ```
@@ -54,6 +62,9 @@ ChronicleFilamentPlugin::make()
 | `erasure(bool)`                                                | Enable the Erase-subject action (default off)                                                  |
 | `eraseAuthorize(Closure)`                                      | Authorize the erase action; **defaults to deny**, separate from the verify gate                |
 | `eraseAllowHoldOverride(bool)`                                 | Permit overriding a legal hold during erasure (default off)                                    |
+| `exports(bool)`                                                | Show/hide the verifiable-export + verify-export surfaces (default on)                          |
+| `reporting(bool)`                                              | Show/hide the signed compliance-report surface (default on)                                    |
+| `exportAuthorize(Closure)`                                     | Authorize export/report; **defaults to the verify gate** (exports egress the full dataset)     |
 | `authorize(Closure)`                                           | Gate the verify actions independently of read access                                           |
 | `labelResolver(Closure)`                                       | Override actor/subject display labels; return `null` to fall back to core's `resolveReference` |
 
