@@ -29,8 +29,6 @@ export default function Root({
       window._paq.push(['setSiteId', SITE_ID]);
       window._paq.push(['enableLinkTracking']);
 
-      // Optional privacy settings
-      window._paq.push(['anonymizeIp']);
       // window._paq.push(['disableCookies']);
 
       const script = document.createElement('script');
