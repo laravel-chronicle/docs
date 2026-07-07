@@ -9,10 +9,10 @@ const config: Config = {
   future: {
     v4: true,
   },
-  url: 'https://laravel-chronicle.github.io',
+  url: 'https://laravel-chronicle.dev',
   baseUrl: '/',
   organizationName: 'laravel-chronicle',
-  projectName: 'laravel-chronicle.github.io',
+  projectName: 'laravel-chronicle.dev',
   trailingSlash: false,
   onBrokenLinks: 'throw',
   i18n: {
@@ -26,7 +26,7 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           editUrl:
-            'https://github.com/laravel-chronicle/laravel-chronicle.github.io/tree/main/docs/',
+            'https://github.com/laravel-chronicle/docs/tree/main/',
         },
         blog: false,
         theme: {
