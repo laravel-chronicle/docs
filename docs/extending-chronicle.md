@@ -19,8 +19,10 @@ HashPayload
         ↓
 ChainHashEntry
         ↓
-PersistEntry           ← EntryRecorded fires here (sync path only)
+PersistEntry           ← EntryRecorded fires here
 ```
+
+With the `queued` driver, chain hashing and persistence run inside `PersistChronicleEntryJob` in the queue worker, and `EntryRecorded` fires there once the entry is committed. See [Events Reference](./events.md#when-it-fires).
 
 Extensions run **before** canonicalization. They can read and mutate the raw entry attributes. Once `CanonicalizePayload` runs, the payload is frozen into a deterministic JSON structure and hashed - mutations after that point have no effect.
 

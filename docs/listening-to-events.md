@@ -49,7 +49,7 @@ Event::listen(EntryRejected::class, function (EntryRejected $event) {
 
 ## Important: queued driver timing
 
-`EntryRecorded` is dispatched by the synchronous `PersistEntry` pipeline stage. When `driver = 'queued'`, that stage is bypassed - `EntryRecorded` is **not fired**. See [Events Reference](./events.md) for the full explanation.
+With a synchronous driver, `EntryRecorded` fires in the request, inside the write transaction. When `driver = 'queued'`, it fires in the **queue worker** instead, after the entry's transaction has committed - so a listener cannot rely on request state such as the authenticated user or the current request. Before v1.14 the event was not fired at all with the queued driver. See [Events Reference](./events.md#when-it-fires) for the full explanation.
 
 ## Full event documentation
 

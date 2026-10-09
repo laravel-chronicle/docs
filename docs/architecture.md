@@ -94,7 +94,7 @@ Chronicle resolves persistence through the configured storage driver.
 Built-in drivers:
 
 - `eloquent` / `database` - synchronous write via the database layer (default)
-- `queued` - asynchronous write dispatched to a single-worker queue
+- `queued` - asynchronous write dispatched to a queue (a single worker, or a FIFO queue)
 - `array` - in-memory, for testing
 - `null` - discards entries silently
 

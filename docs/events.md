@@ -24,9 +24,15 @@ The fully persisted `Chronicle\Entry\Entry` model.
 
 ### When it fires
 
-`EntryRecorded` is dispatched by the `PersistEntry` pipeline stage, which runs at the end of the **synchronous** write path.
+When and where it fires depends on the storage driver:
 
-**Important:** when `driver = 'queued'`, Chronicle dispatches a `PersistChronicleEntryJob` instead of running the full pipeline. The job calls `ChainHashEntry` and `DatabaseDriver` directly - it does **not** pass through `PersistEntry`. As a result, `EntryRecorded` is **not fired** when using the queued driver.
+| Driver                  | Dispatched by                                    | Where                                               | If a listener throws                                                   |
+|-------------------------|--------------------------------------------------|-----------------------------------------------------|------------------------------------------------------------------------|
+| `eloquent` / `database` | The `PersistEntry` pipeline stage                | In the request, inside the write transaction        | The entry is rolled back and the exception reaches the `commit()` call |
+| `queued`                | `PersistChronicleEntryJob` (since v1.14)         | In the queue worker, after its transaction commits  | The job fails, but the entry stays in the ledger                       |
+| `null`                  | Not fired - nothing is persisted                 | -                                                   | -                                                                      |
+
+**Queued driver:** the job computes the chain hash and stores the entry in a transaction, then dispatches the event once that transaction has committed. The job runs with `tries = 1`, so a failed listener is not retried; the failure shows up in `failed_jobs`. Before v1.14 the job never dispatched `EntryRecorded`, so listeners received nothing with this driver.
 
 ### Listening
 
