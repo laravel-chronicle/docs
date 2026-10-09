@@ -20,26 +20,31 @@ Use it for normal application audit logging.
 
 The `queued` driver dispatches entry persistence to a background job (`PersistChronicleEntryJob`) instead of writing synchronously.
 
-**Critical constraint:** Chronicle’s chain hashes are order-sensitive. You must run exactly **one** worker on the Chronicle queue:
+**Critical constraint:** each entry's chain hash builds on the entry before it, so entries must be persisted one at a time. There are two ways to guarantee that.
+
+**A single worker.** On a queue with no ordering guarantee (`database`, `redis`, a standard SQS queue), run exactly **one** worker on the Chronicle queue:
 
 ```bash
 php artisan queue:work --queue=chronicle --tries=1
 ```
 
-Running multiple workers on this queue will produce chain forks - two workers can each read the same previous chain head and generate competing next hashes.
+Concurrent workers cannot fork the chain - `sequence` is uniquely indexed and the chain head is read under a row lock - but they race for it, and depending on your database's isolation level the losing write can fail. The job runs with `tries = 1`, so that entry lands in `failed_jobs` and is missing from the ledger until you replay it.
 
-Configure the queue connection and name in `config/chronicle.php`:
+**A FIFO queue.** Since v1.14 the driver also works on SQS FIFO queues, including Laravel Cloud managed FIFO queues. Every entry is dispatched under one message group (`queue.message_group`, default `chronicle`), and SQS keeps at most one message per group in flight, so ordering holds however many workers run - at the cost of one entry in flight at a time. See [Run Chronicle Writes on a Queue](./guide-queue-driver.md#option-b-a-fifo-queue) for setup.
+
+Configure the queue in `config/chronicle.php`:
 
 ```php
-‘queue’ => [
-    ‘connection’ => env(‘CHRONICLE_QUEUE_CONNECTION’),
-    ‘name’       => env(‘CHRONICLE_QUEUE’, ‘chronicle’),
+'queue' => [
+    'connection'    => env('CHRONICLE_QUEUE_CONNECTION'),
+    'name'          => env('CHRONICLE_QUEUE', 'chronicle'),
+    'message_group' => env('CHRONICLE_QUEUE_MESSAGE_GROUP', 'chronicle'),
 ],
 ```
 
 **What the job does:** the job receives the pre-validated, pre-hashed payload attributes. Inside a database transaction it acquires a row-level lock, computes the chain hash, and persists the entry via `DatabaseDriver`.
 
-**Event timing:** `EntryRecorded` is dispatched by the synchronous `PersistEntry` pipeline stage. The `queued` driver bypasses that stage - `EntryRecorded` is **not** fired when this driver is active.
+**Event timing:** since v1.14, `EntryRecorded` is dispatched by the job in the queue worker, after its transaction has committed. A listener that throws fails the job but cannot roll back the entry. Before v1.14 the event was not fired with this driver. See [Events Reference](./events.md#when-it-fires).
 
 ## `array`
 

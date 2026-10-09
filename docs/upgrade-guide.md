@@ -142,6 +142,44 @@ No action is required to adopt 1.13; reach for each feature when you need it.
 
 ---
 
+## Upgrading to 1.14
+
+1.14 needs no migration and changes no artifact format. It affects only applications using the `queued` driver.
+
+### 1. `EntryRecorded` now fires with the queued driver
+
+Before 1.14 the queued job never dispatched `EntryRecorded`. It now does, in the queue worker, after the entry's transaction has committed.
+
+If you use `driver = 'queued'` and already register an `EntryRecorded` listener, it will **start running** after you upgrade. Check that it does not depend on request state (the authenticated user, the current request), because it runs in the worker. A listener that throws fails the job but cannot roll back the entry. See [Events Reference](./events.md#when-it-fires).
+
+### 2. FIFO queues are supported
+
+The queued driver can now dispatch to an SQS FIFO queue, including a Laravel Cloud managed FIFO queue. This is opt-in: point `CHRONICLE_QUEUE` at a `.fifo` queue. See [Run Chronicle Writes on a Queue](./guide-queue-driver.md#option-b-a-fifo-queue).
+
+### 3. A message group is sent on standard SQS queues
+
+Chronicle's queued jobs now carry an SQS message group on standard queues as well as FIFO ones. AWS treats it on a standard queue as a fair-queue marker: no ordering and no throughput limit. SQS-compatible emulators that predate fair queues (older ElasticMQ or LocalStack) can reject it, so update them if local sends start failing. Non-SQS queue drivers are unaffected.
+
+### 4. A blank queue name uses the connection default
+
+An empty or `null` `chronicle.queue.name` now dispatches to the queue connection's default queue. Previously `null` threw an exception and an empty string targeted a queue literally named `""`.
+
+### New config key
+
+If you published `config/chronicle.php` before 1.14, add `message_group` to the `queue` block to control it through the environment:
+
+```php
+'queue' => [
+    'connection'    => env('CHRONICLE_QUEUE_CONNECTION'),
+    'name'          => env('CHRONICLE_QUEUE', 'chronicle'),
+    'message_group' => env('CHRONICLE_QUEUE_MESSAGE_GROUP', 'chronicle'),
+],
+```
+
+Without the key, Chronicle uses the default group `chronicle`.
+
+---
+
 ## See also
 
 - [Recording Entries](./recording-entries.md) - full `EntryBuilder` API

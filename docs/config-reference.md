@@ -18,7 +18,7 @@ Selects the storage driver Chronicle uses to persist entries.
 Built-in drivers:
 
 - `eloquent` / `database`: synchronous write via Laravel's database layer (default)
-- `queued`: asynchronous write via a dedicated queue worker
+- `queued`: asynchronous write via a dedicated queue (a single worker, or a FIFO queue)
 - `array`: in-memory storage for tests
 - `null`: discards entries, useful for tests or local development
 
@@ -36,25 +36,33 @@ Set this when you want the audit ledger isolated from your main application data
 
 ## `queue`
 
-Used when `driver = 'queued'`. Chronicle chain hashes are order-sensitive, so this queue **must** be processed by a single worker:
+Used when `driver = 'queued'`. Chronicle chain hashes are order-sensitive, so entries must be persisted one at a time. On a queue that cannot guarantee ordering, that means a single worker:
 
 ```bash
 php artisan queue:work --queue=chronicle --tries=1
 ```
 
-Running multiple workers on this queue will produce chain forks.
+Concurrent workers cannot fork the chain - `sequence` is uniquely indexed and the chain head is read under a row lock - but a losing write can fail and, with `tries = 1`, land in `failed_jobs`. An SQS FIFO queue removes that race (v1.14+). See [Run Chronicle Writes on a Queue](./guide-queue-driver.md).
 
 ```php
 'queue' => [
-    'connection' => env('CHRONICLE_QUEUE_CONNECTION'),
-    'name'       => env('CHRONICLE_QUEUE', 'chronicle'),
+    'connection'    => env('CHRONICLE_QUEUE_CONNECTION'),
+    'name'          => env('CHRONICLE_QUEUE', 'chronicle'),
+    'message_group' => env('CHRONICLE_QUEUE_MESSAGE_GROUP', 'chronicle'),
 ],
 ```
 
-| Key          | Env var                      | Default                           | Description                     |
-|--------------|------------------------------|-----------------------------------|---------------------------------|
-| `connection` | `CHRONICLE_QUEUE_CONNECTION` | `null` (default queue connection) | Laravel queue connection to use |
-| `name`       | `CHRONICLE_QUEUE`            | `chronicle`                       | Queue name for Chronicle jobs   |
+| Key             | Env var                         | Default                           | Description                                                    |
+|-----------------|---------------------------------|-----------------------------------|----------------------------------------------------------------|
+| `connection`    | `CHRONICLE_QUEUE_CONNECTION`    | `null` (default queue connection) | Laravel queue connection to use                                |
+| `name`          | `CHRONICLE_QUEUE`               | `chronicle`                       | Queue name for Chronicle jobs                                  |
+| `message_group` | `CHRONICLE_QUEUE_MESSAGE_GROUP` | `chronicle`                       | SQS message group every entry is dispatched under (v1.14+)     |
+
+Notes:
+
+- A blank or `null` `name` dispatches to the queue connection's own default queue (v1.14+).
+- `message_group` must be one stable value: FIFO queues order messages only within a group, and the chain is a single global sequence. Change it only to namespace separate ledgers that share one queue. It must satisfy SQS's rules for a group ID (at most 128 characters, no whitespace). A blank or non-string value falls back to `chronicle`.
+- The group is sent on standard SQS queues too, where AWS treats it as a fair-queue marker with no ordering. Non-SQS queue drivers ignore it.
 
 ## `prune`
 
@@ -189,6 +197,8 @@ External anchoring of checkpoints. Opt-in; off by default. See [External Anchori
 | `anchoring.providers` | -                             | `[]`     | `name => ['provider' => class, ...config]`   |
 
 When `enabled`, each new checkpoint is anchored asynchronously with every configured provider after the checkpoint transaction commits. An anchor failure never rolls a checkpoint back.
+
+Anchoring is not order-sensitive, so a standard queue is fine for `anchoring.queue`. A FIFO queue also works (v1.14+): anchor jobs are grouped by checkpoint, so different checkpoints still anchor in parallel.
 
 ## `validation`
 
