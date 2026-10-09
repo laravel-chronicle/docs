@@ -4,34 +4,32 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
 
 jobs:
-  build-and-push:
-    uses: laravel-chronicle/.github/.github/workflows/build.yml@51438c15798d323d564ae6dad40dbcc2ccb0ca39 # main
-    with:
-      image: 'ghcr.io/laravel-chronicle/docs'
-      dockerfile: './Dockerfile'
-      context: '.'
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-  cleanup:
-    needs: [build-and-push]
-    uses: laravel-chronicle/.github/.github/workflows/cleanup.yml@b6b15e48589b8d2ac37a1a9c08ec2290c090a93d # main
-    with:
-      package_name: 'docs'
-      package_type: 'container'
-      min_versions_to_keep: 3
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
 
-  ssh-and-pull:
-    needs: [build-and-push]
-    uses: laravel-chronicle/.github/.github/workflows/pull.yml@e0e5ca059edf7b288bc64bccdf98f0090b24eb15 # main
-    with:
-      directory: '/home/sites/docs'
-      compose_file: 'https://raw.githubusercontent.com/laravel-chronicle/docs/refs/heads/main/docker-compose.yml'
-    secrets: inherit
+      - run: npm ci
+
+      - run: npm run build
+
+      - uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy build --project-name=laravel-chronicle-docs --branch=main

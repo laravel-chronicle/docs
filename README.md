@@ -59,4 +59,11 @@ When updating documentation for `laravel-chronicle/core`:
 
 ## Deployment
 
-This is a standard Docusaurus site and can be deployed as static files from the generated `build/` directory.
+The site is hosted on Cloudflare Pages. Every push to `main` runs [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml), which builds the site and uploads `build/` to the `laravel-chronicle-docs` Pages project with Wrangler.
+
+The workflow needs two repository secrets:
+
+- `CLOUDFLARE_API_TOKEN` — an API token with the `Cloudflare Pages: Edit` permission
+- `CLOUDFLARE_ACCOUNT_ID` — the Cloudflare account that owns the Pages project
+
+Response headers for the hosted site are defined in [`static/_headers`](./static/_headers).
