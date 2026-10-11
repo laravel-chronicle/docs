@@ -111,7 +111,7 @@ class Order extends Model
 If a model defines both, the method wins. A property must be an array of strings; anything else throws a `LogicException` when the model is saved.
 
 :::note
-The methods are available in releases after 1.14.0. In 1.9.1 through 1.14.0, declaring any of these properties on the class that uses `HasChronicle` fails with a PHP "define the same property" error. On those versions, put `use HasChronicle;` on a base model and declare the properties on the model that extends it.
+The methods are available from 1.15.0. In 1.9.1 through 1.14.0, declaring any of these properties on the class that uses `HasChronicle` fails with a PHP "define the same property" error. On those versions, put `use HasChronicle;` on a base model and declare the properties on the model that extends it.
 :::
 
 ### Other overridable methods
