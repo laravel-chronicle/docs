@@ -180,6 +180,61 @@ Without the key, Chronicle uses the default group `chronicle`.
 
 ---
 
+## Upgrading to 1.15
+
+1.15 needs no migration and changes no artifact format. It affects only models that use the `HasChronicle` trait.
+
+### 1. `HasChronicle` properties work on the model again
+
+Declaring `$chronicleEvents`, `$chronicleIgnore` or `$chronicleRedact` on the class that uses `HasChronicle` failed with a PHP "define the same property" error in 1.9.1 through 1.14.0. It works again in 1.15:
+
+```php
+class Order extends Model
+{
+    use HasChronicle;
+
+    protected array $chronicleEvents = ['created', 'deleted'];
+    protected array $chronicleIgnore = ['last_synced_at'];
+    protected array $chronicleRedact = ['tax_id'];
+}
+```
+
+If you worked around the error by putting `use HasChronicle;` on a base model and declaring the properties on the model that extends it, that keeps working and you can leave it in place.
+
+### 2. Settings can be defined as methods
+
+Each of the three settings can also be defined by overriding `chronicleEvents()`, `chronicleIgnore()` or `chronicleRedact()`. This is opt-in. If a model defines both a method and a property, the method wins. See [Auditing Eloquent Models](./auditing-eloquent-models.md#using-methods-instead-of-properties).
+
+### 3. Declare the properties you assign
+
+The trait no longer declares the three properties itself. It reads them from the model when the model declares them, and uses the defaults otherwise.
+
+If you assign one at runtime without declaring it, declare it on the model or override the matching method. Undeclared, the assignment is treated as an Eloquent attribute and the save fails:
+
+```php
+// Before: worked through 1.14, fails on 1.15
+public function __construct(array $attributes = [])
+{
+    parent::__construct($attributes);
+
+    $this->chronicleRedact = ['tax_id'];
+}
+
+// After: override the method
+protected function chronicleRedact(): array
+{
+    return ['tax_id'];
+}
+```
+
+Models that declare the properties, or do not set them at all, need no change.
+
+### 4. Properties are validated
+
+A declared property that is not an array of strings now throws a `LogicException` when the model is saved.
+
+---
+
 ## See also
 
 - [Recording Entries](./recording-entries.md) - full `EntryBuilder` API
