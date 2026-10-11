@@ -32,6 +32,9 @@ class Order extends Model
     // Exclude these fields from update diffs
     protected array $chronicleIgnore = ['last_synced_at'];
 
+    // Record that these fields changed, but not their values
+    protected array $chronicleRedact = ['tax_id'];
+
     // Override the action prefix (default: snake_case class name)
     protected function chronicleActionPrefix(): string
     {

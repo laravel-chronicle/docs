@@ -37,7 +37,7 @@ The actor defaults to `Auth::user() ?? 'system'`.
 
 ### Customising recorded events
 
-Override `$chronicleEvents` to limit which lifecycle events are audited:
+Declare `$chronicleEvents` to limit which lifecycle events are audited:
 
 ```php
 class Order extends Model
@@ -48,9 +48,11 @@ class Order extends Model
 }
 ```
 
+Set it to `[]` to record nothing for that model.
+
 ### Ignoring specific fields in diffs
 
-Override `$chronicleIgnore` to exclude fields from the `updated` diff:
+Declare `$chronicleIgnore` to exclude fields from the `updated` diff:
 
 ```php
 class Order extends Model
@@ -61,9 +63,58 @@ class Order extends Model
 }
 ```
 
-`created_at` and `updated_at` are always excluded by default.
+`created_at` and `updated_at` are always excluded by default. The entry is still recorded when only ignored fields change; it just carries no diff.
 
-### Overridable methods
+### Redacting sensitive fields in diffs
+
+A model's `$hidden` attributes are redacted automatically: the diff records that the field changed, with `[redacted]` in place of both the old and the new value. Declare `$chronicleRedact` to redact further fields that are not hidden:
+
+```php
+class Customer extends Model
+{
+    use HasChronicle;
+
+    protected $hidden = ['password'];              // redacted automatically
+
+    protected array $chronicleRedact = ['tax_id']; // redacted as well
+}
+```
+
+Use `$chronicleIgnore` when a change is not worth auditing at all, and `$chronicleRedact` when the change matters but the value must not reach the ledger. Entries are immutable, so a value written in the clear cannot be removed later.
+
+### Using methods instead of properties
+
+Each of the three settings can also be defined by overriding a method of the same name. Use this when the value has to be computed:
+
+```php
+class Order extends Model
+{
+    use HasChronicle;
+
+    protected function chronicleEvents(): array
+    {
+        return ['created', 'deleted'];
+    }
+
+    protected function chronicleIgnore(): array
+    {
+        return ['last_synced_at', 'cache_key'];
+    }
+
+    protected function chronicleRedact(): array
+    {
+        return config('audit.redacted_order_fields', []);
+    }
+}
+```
+
+If a model defines both, the method wins. A property must be an array of strings; anything else throws a `LogicException` when the model is saved.
+
+:::note
+The methods are available in releases after 1.14.0. In 1.9.1 through 1.14.0, declaring any of these properties on the class that uses `HasChronicle` fails with a PHP "define the same property" error. On those versions, put `use HasChronicle;` on a base model and declare the properties on the model that extends it.
+:::
+
+### Other overridable methods
 
 Override these protected methods in your model for finer control:
 
@@ -82,12 +133,6 @@ class Order extends Model
     protected function chronicleActionPrefix(): string
     {
         return 'shop.order'; // produces: shop.order.created, etc.
-    }
-
-    // Change which fields are ignored in diffs (merged with defaults)
-    protected function chronicleIgnoredFields(): array
-    {
-        return array_merge(parent::chronicleIgnoredFields(), ['search_vector']);
     }
 }
 ```
@@ -137,6 +182,9 @@ class InvoiceObserver extends ChronicleModelObserver
 
     // Extra fields to exclude from diffs (merged with timestamps)
     protected array $ignoredFields = ['stripe_metadata', 'pdf_cache'];
+
+    // Extra fields to redact in diffs (the model's $hidden attributes always are)
+    protected array $redactedFields = ['tax_id'];
 }
 ```
 
