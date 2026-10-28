@@ -33,6 +33,7 @@ Extensions declare which stage they belong to via `stage(): ExtensionStage`. Chr
 ```php
 enum ExtensionStage: int
 {
+    case PREPARE         = 50;
     case VALIDATE        = 100;
     case RESOLVE_CONTEXT = 200;
     case POLICY          = 300;
@@ -42,6 +43,7 @@ enum ExtensionStage: int
 
 | Stage             | Value  | Purpose                                          |
 |-------------------|--------|--------------------------------------------------|
+| `PREPARE`         | 50     | Convert values before validation (v1.16+)        |
 | `VALIDATE`        | 100    | Reject invalid entries early - throw to abort    |
 | `RESOLVE_CONTEXT` | 200    | Enrich the `context` attribute with runtime data |
 | `POLICY`          | 300    | Enforce business rules - throw to reject         |

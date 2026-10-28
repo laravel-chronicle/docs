@@ -33,7 +33,7 @@ An extension must implement `Chronicle\Contracts\EntryExtension`:
 ```php
 use Chronicle\Contracts\EntryExtension;
 use Chronicle\Entry\PendingEntry;
-use Chronicle\Extensions\ExtensionStage;
+use Chronicle\Pipeline\ExtensionStage;
 
 final class ResolveTenantContext implements EntryExtension
 {
@@ -58,12 +58,59 @@ final class ResolveTenantContext implements EntryExtension
 
 Chronicle currently exposes these ordered stages:
 
+- `PREPARE` (v1.16+)
 - `VALIDATE`
 - `RESOLVE_CONTEXT`
 - `POLICY`
 - `PROCESS`
 
 All extensions run before Chronicle’s built-in canonicalization, payload hashing, chain hashing, and persistence processors.
+
+## Converting values before validation
+
+Chronicle stores scalars and arrays. A value object or DTO in `diff` or `context` is rejected by the built-in validators, and its string form is not always what you want recorded: a money object might print as `$5.00` while your application stores `500`.
+
+A `PREPARE` extension runs before every validator, so it can turn those values into what the entry should record:
+
+```php
+use App\Support\Currency;
+use Chronicle\Contracts\EntryExtension;
+use Chronicle\Entry\PendingEntry;
+use Chronicle\Pipeline\ExtensionStage;
+
+final class StoreCurrencyAsMinorAmount implements EntryExtension
+{
+    public function stage(): ExtensionStage
+    {
+        return ExtensionStage::PREPARE;
+    }
+
+    public function process(PendingEntry $entry): PendingEntry
+    {
+        $diff = $entry->attribute('diff');
+
+        if (! is_array($diff)) {
+            return $entry;
+        }
+
+        array_walk_recursive($diff, function (mixed &$value): void {
+            if ($value instanceof Currency) {
+                $value = $value->toMinorAmount();
+            }
+        });
+
+        $entry->setAttribute('diff', $diff);
+
+        return $entry;
+    }
+}
+```
+
+Register it under `extensions` in `config/chronicle.php`, or with `Chronicle::extendEntry(StoreCurrencyAsMinorAmount::class)`.
+
+`HasChronicle` diffs already record the value a cast stores (see [How cast attributes appear in diffs](./auditing-eloquent-models.md#how-cast-attributes-appear-in-diffs)), so a `PREPARE` extension is mainly for values you pass to `->diff()`, `->change()` or `->context()` yourself.
+
+Before v1.16, use a `VALIDATE` extension with a low priority instead.
 
 ## Priority ordering
 
