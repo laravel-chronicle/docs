@@ -13,7 +13,7 @@ Developer API
 ↓
 Entry Builder
 ↓
-Extension Pipeline (VALIDATE -> RESOLVE_CONTEXT -> POLICY -> PROCESS)
+Extension Pipeline (PREPARE -> VALIDATE -> RESOLVE_CONTEXT -> POLICY -> PROCESS)
 ↓
 Canonical Payload Serializer
 ↓
