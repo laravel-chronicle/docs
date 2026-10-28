@@ -67,7 +67,7 @@ class Order extends Model
 
 ### Redacting sensitive fields in diffs
 
-A model's `$hidden` attributes are redacted automatically: the diff records that the field changed, with `[redacted]` in place of both the old and the new value. Declare `$chronicleRedact` to redact further fields that are not hidden:
+A model's `$hidden` attributes and its encrypted casts (`encrypted`, `encrypted:array` and the other `encrypted:*` casts, `AsEncryptedArrayObject`, `AsEncryptedCollection`) are redacted automatically: the diff records that the field changed, with `[redacted]` in place of both the old and the new value. Declare `$chronicleRedact` to redact further fields:
 
 ```php
 class Customer extends Model
@@ -81,6 +81,28 @@ class Customer extends Model
 ```
 
 Use `$chronicleIgnore` when a change is not worth auditing at all, and `$chronicleRedact` when the change matters but the value must not reach the ledger. Entries are immutable, so a value written in the clear cannot be removed later.
+
+### How cast attributes appear in diffs
+
+The diff records each value as it is stored in the database, not as the model's casts return it, so both sides have the same shape:
+
+| Cast | Recorded as | Example |
+|---|---|---|
+| none | the stored value | `"Alice"` -> `"Bob"` |
+| `bool`, `int`, `float`, `string` | the cast value, on both sides | `false` -> `true` |
+| `datetime`, `date`, `immutable_datetime` | the stored date string | `"2026-02-01 12:00:00"` -> `"2026-02-02 12:00:00"` |
+| backed enum | its backing value | `"draft"` -> `"live"` |
+| `array`, `json`, `collection` | the stored JSON string | `'{"a":1}'` -> `'{"a":2}'` |
+| encrypted casts | `[redacted]` | `"[redacted]"` -> `"[redacted]"` |
+| custom cast | what its `set()` stores | a `Money` cast that stores cents: `500` -> `750` |
+
+If a custom cast's `set()` returns a date, an enum or a `Stringable` object instead of a scalar, Chronicle records the scalar it is stored as.
+
+A custom cast whose `set()` returns a new object on every call makes Laravel treat the attribute as changed even when the value is the same. Implement `ComparesCastableAttributes` on the cast so that an unchanged value is not reported as a change. See [Comparing Cast Values](https://laravel.com/docs/eloquent-mutators#comparing-cast-values) in the Laravel docs.
+
+:::note
+Before 1.15.1, an update to a `datetime`, enum or object-returning custom cast failed with an `InvalidDiffException` after the row was saved, so the change was not audited. An `encrypted` cast's previous value was also recorded in plaintext unless the field was hidden or listed in `$chronicleRedact`.
+:::
 
 ### Using methods instead of properties
 
