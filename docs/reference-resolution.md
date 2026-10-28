@@ -20,8 +20,43 @@ The default resolver supports:
 
 An Eloquent model resolves to:
 
-- `type`: model class name
+- `type`: model class name, or its morph alias with [`use_morph_map`](#storing-morph-aliases) on
 - `id`: model primary key as a string
+
+### Storing morph aliases
+
+If your application registers a morph map, you can store a model's alias instead of its class name. That keeps class names out of the ledger and lets you rename or move a model without changing how its entries are stored:
+
+```php
+// AppServiceProvider::boot()
+Relation::enforceMorphMap([
+    'order' => \App\Models\Order::class,
+]);
+```
+
+```php
+// config/chronicle.php
+'references' => [
+    'use_morph_map' => true,
+],
+```
+
+New entries for an `Order` then store `order` as their `subject_type` / `actor_type`. A model with no morph map entry keeps its class name, even under `enforceMorphMap()`, so a missing alias never fails an audit write.
+
+The option is off by default, because entries are immutable: entries written before you turn it on keep the class name. Chronicle treats both names as the same subject, so you can turn it on (or off again) on an existing ledger:
+
+- `Entry::forSubject($order)` and `Entry::forActor($user)` return entries under either name.
+- A subject keeps a single encryption key, and `chronicle:subject:erase` with either name shreds all of its entries.
+- A legal hold placed under either name protects all of the subject's entries from erasure and `chronicle:prune`.
+- `chronicle:subject:keys` counts the subject's entries under both names.
+
+Queries you write yourself against `subject_type` or `actor_type` see the names as stored. Match both, or use the scopes above.
+
+New in v1.16.
+
+:::tip
+Before v1.16 the way to store aliases was a custom `ReferenceResolver` returning `$model->getMorphClass()`. It keeps working, and from v1.16 its entries are matched by the scopes, keys and holds above as well. You can replace it with this option.
+:::
 
 ## Scalars
 

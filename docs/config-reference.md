@@ -123,6 +123,16 @@ The Eloquent model Chronicle reads and verifies. Point it at a subclass of `Chro
 
 The model attribute read for a human label when reverse reference resolution hydrates a record (`Chronicle::referenceLabel(..., hydrate: true)` / `referenceModel()`). Default `name`. New in v1.13. See [Reference Resolution](./reference-resolution.md#reverse-resolution).
 
+## `references.use_morph_map`
+
+```php
+'references' => [
+    'use_morph_map' => env('CHRONICLE_USE_MORPH_MAP', false),
+],
+```
+
+Store a model's morph alias from `Relation::morphMap()` as its `actor_type` / `subject_type` instead of its class name. Default `false`. Lookups by type match both names, so it is safe to turn on for an existing ledger. New in v1.16. See [Storing morph aliases](./reference-resolution.md#storing-morph-aliases).
+
 ## `signing.active`
 
 The key ID used to sign new checkpoints and exports. Must match a key defined in `signing.keys`.
