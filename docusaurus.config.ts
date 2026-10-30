@@ -54,6 +54,7 @@ const config: Config = {
           label: 'Docs',
         },
         {to: '/docs/quick-start', label: 'Quick Start', position: 'left'},
+        {href: 'https://demo.laravel-chronicle.dev', label: 'Demo', position: 'right'},
         {to: '/services', label: 'Services', position: 'right'},
         {
           href: 'https://github.com/laravel-chronicle/core',
@@ -90,6 +91,10 @@ const config: Config = {
               href: 'https://github.com/laravel-chronicle/core',
             },
             {
+              label: 'Demo',
+              href: 'https://demo.laravel-chronicle.dev',
+            },
+            {
               label: 'Services',
               to: '/services',
             },
@@ -104,11 +109,11 @@ const config: Config = {
             },
             {
               label: 'Contributing',
-              href: 'https://github.com/laravel-chronicle/core/blob/main/CONTRIBUTING.md',
+              href: 'https://github.com/laravel-chronicle/.github/blob/main/CONTRIBUTING.md',
             },
             {
               label: 'Security Policy',
-              href: 'https://github.com/laravel-chronicle/core/blob/main/SECURITY.md',
+              href: 'https://github.com/laravel-chronicle/core/security/policy',
             },
           ],
         },
