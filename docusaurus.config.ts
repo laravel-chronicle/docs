@@ -54,6 +54,7 @@ const config: Config = {
           label: 'Docs',
         },
         {to: '/docs/quick-start', label: 'Quick Start', position: 'left'},
+        {to: '/services', label: 'Services', position: 'right'},
         {
           href: 'https://github.com/laravel-chronicle/core',
           label: 'GitHub',
@@ -87,6 +88,10 @@ const config: Config = {
             {
               label: 'GitHub',
               href: 'https://github.com/laravel-chronicle/core',
+            },
+            {
+              label: 'Services',
+              to: '/services',
             },
           ],
         },
