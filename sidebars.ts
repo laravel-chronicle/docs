@@ -159,12 +159,12 @@ const sidebars: SidebarsConfig = {
         {
           type: 'link',
           label: 'Contributing',
-          href: 'https://github.com/laravel-chronicle/core/blob/main/CONTRIBUTING.md',
+          href: 'https://github.com/laravel-chronicle/.github/blob/main/CONTRIBUTING.md',
         },
         {
           type: 'link',
           label: 'Security Policy',
-          href: 'https://github.com/laravel-chronicle/core/blob/main/SECURITY.md',
+          href: 'https://github.com/laravel-chronicle/core/security/policy',
         },
       ],
     },
