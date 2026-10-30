@@ -68,4 +68,4 @@ Everything in Standard, plus what an auditor asks for.
 2. I reply with a fixed quote within 2 working days. If your app needs more than a package covers, the quote says so before any work starts.
 3. I work on a branch in your repo. You review and merge the pull request.
 
-Prefer Upwork? The same packages are in my Upwork project catalog.
+Prefer Upwork? The same packages are in my [Upwork project catalog](https://www.upwork.com/services/product/development-it-tamper-evident-audit-logging-for-your-laravel-app-set-up-by-the-maintainer-2116092373492886920).
