@@ -141,6 +141,36 @@ function HomepageSections() {
         </div>
       </section>
 
+      <section className={styles.section}>
+        <div className="container">
+          <div className={styles.sectionHeader}>
+            <p className={styles.sectionLabel}>Sponsors</p>
+            <Heading as="h2">Keep Chronicle current with every Laravel and PHP release</Heading>
+            <p>
+              Chronicle is free and MIT licensed. Sponsorship pays for new Laravel and PHP
+              support, security fixes, and these docs.
+            </p>
+          </div>
+
+          <div className={styles.sponsorGrid}>
+            <article className={styles.featureCard}>
+              <Heading as="h3">Partners</Heading>
+              <p>
+                Your logo here.{' '}
+                <Link to="https://github.com/sponsors/ntoufoudis">Become a partner</Link>.
+              </p>
+            </article>
+            <article className={styles.featureCard}>
+              <Heading as="h3">Company sponsors</Heading>
+              <p>
+                Your logo here.{' '}
+                <Link to="https://github.com/sponsors/ntoufoudis">Become a company sponsor</Link>.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section className={styles.ctaSection}>
         <div className="container">
           <div className={styles.ctaCard}>
