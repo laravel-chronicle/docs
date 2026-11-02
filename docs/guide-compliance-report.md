@@ -45,7 +45,26 @@ The report includes a **signature block**: the report hash, the signature, the a
 
 The public key is not in the report. Give it to the auditor separately, through a channel they trust: `CHRONICLE_PUBLIC_KEY` for Ed25519, or the PEM public key for ECDSA P-256 (local or AWS KMS).
 
-The report hash covers the entry count, the first and last entry ids, the chain head and the reporting period. The HTML shows the count, chain head and period, but not the entry ids, so the hash cannot be recomputed from the HTML alone. For a fully independent check of the entries themselves, also hand over a signed [export](./exports.md); the auditor verifies it with `chronicle:verify-export` or the steps in [Export Verification](./export-verification.md).
+The auditor checks two things, in this order:
+
+1. **The report hash matches the data on the page.** Since 1.17.0 the report shows the Signed data block.
+2. **The signature is valid** for that report hash.
+
+A report summarises the ledger; it does not contain the entries. For an independent check of the entries themselves, also hand over a signed [export](./exports.md); the auditor verifies it with `chronicle:verify-export` or the steps in [Export Verification](./export-verification.md).
+
+### Check the report hash
+
+Copy the text of the **Signed data** block from the report and hash it:
+
+```bash
+SIGNED_DATA='<text of the Signed data block>'
+
+printf '%s' "$SIGNED_DATA" | sha256sum    # macOS: shasum -a 256
+```
+
+The output must equal the **Report hash**. Then read the JSON: `entry_count`, `chain_head` and the period must match the table at the top of the report, and `first_entry_id` / `last_entry_id` the First entry and Last entry rows.
+
+Reports generated before 1.17.0 have no Signed data block and do not show the entry ids, so this step is not possible for them. Their signature can still be checked.
 
 ### Verify the signature with OpenSSL
 

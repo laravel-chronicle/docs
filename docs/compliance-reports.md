@@ -37,7 +37,10 @@ The generated HTML report contains:
 | Period       | Date range covered (`--from` / `--to`), or "All entries"                           |
 | Entry count  | Number of entries in the period                                                    |
 | Chain head   | `chain_hash` of the most recent entry in the period                                |
+| First entry  | ID of the first entry in the period (since 1.17.0)                                 |
+| Last entry   | ID of the last entry in the period (since 1.17.0)                                  |
 | Report hash  | SHA-256 of the canonical report data (entry count, boundaries, chain head, period) |
+| Signed data  | The exact canonical JSON the report hash is computed over (since 1.17.0)           |
 | Algorithm    | Signing algorithm (e.g. `ed25519`)                                                 |
 | Key ID       | Identifier of the signing key                                                      |
 | Signature    | Detached signature of the report hash                                              |
@@ -48,9 +51,13 @@ The report hash is computed over a canonical JSON structure that includes `gener
 
 The report is self-contained apart from the public key: the hash, signature, algorithm and key id are embedded in the HTML. An auditor can read the report hash, the signature, the algorithm, and the key id from it, then verify the signature with the corresponding public key.
 
-The public key is not embedded; the auditor gets it from you separately. The HTML shows the entry count, chain head and period, but not the first and last entry ids that the hash also covers, so an auditor can verify the signature but cannot recompute the report hash from the HTML alone. Pair the report with a signed [export](./exports.md) when the auditor needs to check the entries themselves.
+The public key is not embedded; the auditor gets it from you separately.
 
-Chronicle does not ship a separate `verify-report` command. Verification is done by the recipient with standard tooling. Tested OpenSSL steps for Ed25519 and ECDSA P-256 are in [Produce a Compliance Report for an Auditor](./guide-compliance-report.md#verify-the-signature-with-openssl).
+Since 1.17.0 the report also shows the **Signed data**: the exact JSON the report hash is computed over. The auditor recomputes its SHA-256, compares it with the report hash, and checks that it matches the numbers on the page. That ties the entry count, entry ids, chain head and period to the signature. Reports from earlier versions do not show the entry ids, so for those only the signature can be checked.
+
+A report summarises the ledger; it does not contain the entries. Pair it with a signed [export](./exports.md) when the auditor needs to check the entries themselves.
+
+Chronicle does not ship a separate `verify-report` command. Verification is done by the recipient with standard tooling. Tested steps, including OpenSSL for Ed25519 and ECDSA P-256, are in [Produce a Compliance Report for an Auditor](./guide-compliance-report.md#what-the-auditor-can-verify).
 
 ## Signing
 
@@ -65,7 +72,10 @@ Generated:   2026-06-03T08:00:00+00:00
 Period:      2025-01-01 – 2025-03-31
 Entry count: 4 821
 Chain head:  a3f7c9...
+First entry: 01JNV8EJFKJVEWRS2R1W4GD5E6
+Last entry:  01JQ2M7X4ZK9T1B6RS0C8YH3PD
 Report hash: 8e12bd...
+Signed data: {"generated_at":"2026-06-03T08:00:00+00:00","entry_count":4821,...}
 
 Algorithm:  ed25519
 Key ID:     chronicle-main
