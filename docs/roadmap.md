@@ -5,7 +5,7 @@ description: What's planned for Laravel Chronicle - now, next and later - and ho
 
 # Roadmap
 
-What's planned for Chronicle, in three horizons. Live status for every item is on the [Roadmap board](https://github.com/orgs/laravel-chronicle/projects/3). To push something up or suggest something new, reply in the [roadmap discussion](https://github.com/laravel-chronicle/core/discussions/104). A real use case moves an item up.
+What's planned for Chronicle, in three horizons. Live status for every item is on the [Roadmap board](https://github.com/orgs/laravel-chronicle/projects/3/views/6). To push something up or suggest something new, reply in the [roadmap discussion](https://github.com/laravel-chronicle/core/discussions/104). A real use case moves an item up.
 
 _Last updated: 2 November 2026._
 
