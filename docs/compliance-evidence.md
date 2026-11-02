@@ -41,7 +41,7 @@ Each table lists what a control asks for in short, what Chronicle contributes, a
 
 | Control | Chronicle contributes | You still own |
 |---|---|---|
-| **8.15 Logging**: produce, store, protect and analyse logs | Protection of the logs: append-only entries and hash chaining, two of the protection techniques ISO/IEC 27002 lists for this control. Signed exports for storage outside the app | What to log, retention, log review, clock synchronisation (8.17) |
+| **8.15 Logging**: produce, store, protect and analyse logs | Protection of the logs: append-only entries and hash chaining, techniques commonly used to protect logs from tampering. Signed exports for storage outside the app | What to log, retention, log review, clock synchronisation (8.17) |
 | **5.33 Protection of records**: protect records from falsification, loss and unauthorised access | Falsification is detectable. Signed exports and external anchors keep verifiable copies outside the application database | Backups, access control to the database, the retention schedule |
 | **5.28 Collection of evidence** | Signed exports and reports that keep their integrity after they leave your systems | Your evidence handling procedure |
 
