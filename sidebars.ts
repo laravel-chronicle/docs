@@ -74,6 +74,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Exports & Compliance',
       items: [
+        'compliance-evidence',
         'exports',
         'export-format',
         'export-verification',
