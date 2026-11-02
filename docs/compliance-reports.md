@@ -46,9 +46,11 @@ The report hash is computed over a canonical JSON structure that includes `gener
 
 ## Verification
 
-The report is self-contained: all the data needed to verify the signature is embedded in the HTML. An auditor can extract the report hash, the signature, the algorithm, and the key id, then verify the signature with the corresponding public key.
+The report is self-contained apart from the public key: the hash, signature, algorithm and key id are embedded in the HTML. An auditor can read the report hash, the signature, the algorithm, and the key id from it, then verify the signature with the corresponding public key.
 
-Chronicle does not ship a separate `verify-report` command. Verification is intended to be done by the recipient using standard cryptographic tooling for the algorithm in use (e.g. `openssl` for Ed25519).
+The public key is not embedded; the auditor gets it from you separately. The HTML shows the entry count, chain head and period, but not the first and last entry ids that the hash also covers, so an auditor can verify the signature but cannot recompute the report hash from the HTML alone. Pair the report with a signed [export](./exports.md) when the auditor needs to check the entries themselves.
+
+Chronicle does not ship a separate `verify-report` command. Verification is done by the recipient with standard tooling. Tested OpenSSL steps for Ed25519 and ECDSA P-256 are in [Produce a Compliance Report for an Auditor](./guide-compliance-report.md#verify-the-signature-with-openssl).
 
 ## Signing
 

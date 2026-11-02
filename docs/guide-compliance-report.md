@@ -41,20 +41,49 @@ The file is self-contained: it embeds the entry count, chain head, reporting per
 
 ## What the auditor can verify
 
-The report includes a **signature block**. An auditor with the corresponding public key (`CHRONICLE_PUBLIC_KEY`) can verify that:
+The report includes a **signature block**: the report hash, the signature, the algorithm and the key id. With the matching public key, an auditor can verify that the report hash was signed by the key identified by `key_id`, and so that the report was produced by your Chronicle install and not edited afterwards.
 
-1. The report hash covers the canonical data (entry count, boundaries, chain head, period)
-2. The signature was produced by the key identified by `key_id`
+The public key is not in the report. Give it to the auditor separately, through a channel they trust: `CHRONICLE_PUBLIC_KEY` for Ed25519, or the PEM public key for ECDSA P-256 (local or AWS KMS).
 
-Example verification with OpenSSL (Ed25519):
+The report hash covers the entry count, the first and last entry ids, the chain head and the reporting period. The HTML shows the count, chain head and period, but not the entry ids, so the hash cannot be recomputed from the HTML alone. For a fully independent check of the entries themselves, also hand over a signed [export](./exports.md); the auditor verifies it with `chronicle:verify-export` or the steps in [Export Verification](./export-verification.md).
+
+### Verify the signature with OpenSSL
+
+Needs OpenSSL 3.0 or newer (`openssl version`). macOS ships LibreSSL, which cannot do this; install OpenSSL 3 with Homebrew.
+
+The signature covers the report hash **as text**, the 64 hex characters shown in the report, not the raw hash bytes.
+
+**Ed25519** (`Algorithm: ed25519`, the default):
 
 ```bash
-# Extract from the report HTML: report_hash, signature, public_key
-echo -n "<report_hash_hex>" | xxd -r -p > hash.bin
-echo "<base64_signature>" | base64 -d > sig.bin
-echo "<base64_public_key>" | base64 -d > pub.bin
-openssl pkeyutl -verify -inkey pub.bin -keyform DER -sigfile sig.bin -in hash.bin -pubin
+REPORT_HASH='<report hash from the report>'
+SIGNATURE='<signature from the report>'
+PUBLIC_KEY='<CHRONICLE_PUBLIC_KEY, base64>'
+
+# CHRONICLE_PUBLIC_KEY is the raw 32-byte key. Prefix the standard Ed25519
+# public key header so OpenSSL can load it as DER.
+{ printf '\060\052\060\005\006\003\053\145\160\003\041\000'; printf '%s' "$PUBLIC_KEY" | base64 -d; } > chronicle-pub.der
+printf '%s' "$REPORT_HASH" > report-hash.txt
+printf '%s' "$SIGNATURE" | base64 -d > report-sig.bin
+
+openssl pkeyutl -verify -pubin -inkey chronicle-pub.der -keyform DER -rawin -in report-hash.txt -sigfile report-sig.bin
+# Signature Verified Successfully
 ```
+
+**ECDSA P-256** (`Algorithm: ecdsa-p256`, `EcdsaSigningProvider` or the [AWS KMS adapter](./kms-aws.md)), with the PEM public key in `chronicle-pub.pem`:
+
+```bash
+REPORT_HASH='<report hash from the report>'
+SIGNATURE='<signature from the report>'
+
+printf '%s' "$REPORT_HASH" > report-hash.txt
+printf '%s' "$SIGNATURE" | base64 -d > report-sig.bin
+
+openssl dgst -sha256 -verify chronicle-pub.pem -signature report-sig.bin report-hash.txt
+# Verified OK
+```
+
+Any other output means the signature does not match: the report was changed, or the public key is not the one that signed it.
 
 ## Verify it worked
 
