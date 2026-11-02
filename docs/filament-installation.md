@@ -6,6 +6,10 @@ title: Filament Plugin - Installation
 
 `laravel-chronicle/filament` is a **read-only** Filament v4/v5 panel for Chronicle. It lets you browse the tamper-evident audit ledger and cryptographically verify it - across the whole chain, a single entry, or a selected segment - directly from your admin panel. By design the panel can never rewrite history.
 
+:::tip Filament Pro (planned)
+A paid add-on is under consideration: alerts when verification fails, a one-click audit evidence pack, auditor access, per-subject timelines and saved views. The free plugin stays free. [Join the waitlist](https://github.com/laravel-chronicle/core/discussions/270) with a 👍, and comment with the feature you'd pay for.
+:::
+
 ## Requirements
 
 | Requirement              | Supported                   |
