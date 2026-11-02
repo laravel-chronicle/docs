@@ -151,6 +151,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Project',
       items: [
+        'roadmap',
         'upgrade-guide',
         {
           type: 'link',
