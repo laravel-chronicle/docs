@@ -19,20 +19,21 @@ _Last updated: 2 November 2026._
 
 | Item | What it gives you |
 |---|---|
-| **Auth event auditing** | Record Laravel's login, logout, failed login, lockout and password reset events with one line of setup |
-| **Verification events** | `VerificationPassed` / `VerificationFailed` events, so you can route alerts to mail, Slack or a pager |
-| **`chronicle:verify-report`** | Check a compliance report's hash and signature before you send it to an auditor |
-| **`chronicle:doctor`** | One command that checks keys, checkpoints, anchoring, encryption and scheduling, with adapter checks plugged in |
-| **Import from `spatie/laravel-activitylog`** | A separate package that moves existing activity log history into Chronicle |
+| **[Auth event auditing](https://github.com/laravel-chronicle/core/issues/271)** | Record Laravel's login, logout, failed login, lockout and password reset events with one line of setup |
+| **[Verification events](https://github.com/laravel-chronicle/core/issues/272)** | `VerificationPassed` / `VerificationFailed` events, so you can route alerts to mail, Slack or a pager |
+| **[`chronicle:verify-report`](https://github.com/laravel-chronicle/core/issues/273)** | Check a compliance report's hash and signature before you send it to an auditor |
+| **[`chronicle:doctor`](https://github.com/laravel-chronicle/core/issues/274)** | One command that checks keys, checkpoints, anchoring, encryption and scheduling, with adapter checks plugged in |
+| **[Import from `spatie/laravel-activitylog`](https://github.com/laravel-chronicle/core/issues/275)** | A separate package that moves existing activity log history into Chronicle |
 
 ## Next (January - March 2027)
 
 | Item | What it gives you |
 |---|---|
-| **Archive before prune** | Export and verify old entries, then prune them, and the live ledger still verifies |
-| **Standalone verifier** | Verify exports and reports without installing the app, for auditors |
-| **JSON reports** | `chronicle:report --format=json` for compliance tools |
-| **Public-log anchor** | Anchor checkpoints to a free public log (OpenTimestamps or Sigstore Rekor), no cloud account needed |
+| **[Archive before prune](https://github.com/laravel-chronicle/core/issues/276)** | Export and verify old entries, then prune them, and the live ledger still verifies |
+| **[Verification spec and test vectors](https://github.com/laravel-chronicle/core/issues/277)** | A byte-exact description of every hash and signature, with test cases, so anyone can build a verifier that agrees with core |
+| **[Offline browser verifier](https://github.com/laravel-chronicle/core/issues/278)** | One HTML file that verifies exports and reports locally, with nothing to install, for auditors |
+| **[JSON reports](https://github.com/laravel-chronicle/core/issues/279)** | `chronicle:report --format=json` for compliance tools |
+| **[Public-log anchor](https://github.com/laravel-chronicle/core/issues/280)** | Anchor checkpoints to a free public log (OpenTimestamps or Sigstore Rekor), no cloud account needed |
 | **Filament Pro** (paid) | Alerts, an audit evidence pack, auditor access and more, if there is enough interest: [join the waitlist](https://github.com/laravel-chronicle/core/discussions/270) |
 
 ## Later
