@@ -60,7 +60,7 @@ Each table lists what a control asks for in short, what Chronicle contributes, a
 | Standard | Chronicle contributes | You still own |
 |---|---|---|
 | **164.312(b) Audit controls** (required): record and examine activity in systems that contain ePHI | Recording, with tamper evidence | Examining the records: regular review |
-| **164.312(c)(1) Integrity** and **(c)(2) Mechanism to authenticate ePHI** (addressable): protect ePHI from improper alteration or destruction, and corroborate it was not altered | For data you audit with Chronicle, a verifiable history of every change (diffs). It proves the audit trail is intact; it does not by itself protect the ePHI in your application tables | Integrity controls on the ePHI itself |
+| **164.312(c)(1) Integrity** and **(c)(2) Mechanism to authenticate ePHI** (addressable): protect ePHI from improper alteration or destruction, and corroborate it was not altered | For models you audit with Chronicle, a verifiable history of their changes (diffs). It proves the audit trail is intact; it does not by itself protect the ePHI in your application tables | Integrity controls on the ePHI itself |
 
 ### GDPR
 
@@ -93,7 +93,7 @@ On a large ledger a daily full pass gets slow. Modes like `--since-last-checkpoi
 
 For each audit period:
 
-1. **A signed compliance report** for the period. The auditor verifies its signature with OpenSSL: [steps](./guide-compliance-report.md#verify-the-signature-with-openssl).
+1. **A signed compliance report** for the period. The auditor checks that the report hash matches the data on the page (Chronicle 1.17.0 and later) and verifies the signature with OpenSSL: [steps](./guide-compliance-report.md#what-the-auditor-can-verify).
 2. **A signed export** of the same period. It lets the auditor check the entries themselves, not just the report: [Export Verification](./export-verification.md).
 3. **Your public key**, through a channel the auditor trusts (not inside the report).
 4. **Proof of scheduled verification**: the scheduler configuration and recent run output.
