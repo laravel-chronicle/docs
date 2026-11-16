@@ -7,7 +7,7 @@ description: What's planned for Laravel Chronicle - now, next and later - and ho
 
 What's planned for Chronicle, in three horizons. Live status for every item is on the [Roadmap board](https://github.com/orgs/laravel-chronicle/projects/3/views/6). To push something up or suggest something new, reply in the [roadmap discussion](https://github.com/laravel-chronicle/core/discussions/104). A real use case moves an item up.
 
-_Last updated: 2 November 2026._
+_Last updated: 16 November 2026._
 
 ## Principles
 
@@ -44,6 +44,7 @@ Built when someone needs it:
 - Anchoring to Google Cloud Storage or Azure immutable storage
 - Streaming entries to a SIEM (Datadog, Splunk, Elastic)
 - Multiple ledgers in one app
+- [One hash chain per tenant](https://github.com/laravel-chronicle/core/issues/281): separate chains per stream, so each tenant verifies and exports its own audit trail
 - A Laravel Pulse card and a Nova tool
 
 ## Not planned
